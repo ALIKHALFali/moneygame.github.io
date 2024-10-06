@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج التسجيل - Money Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
+        import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCnwJRJeedlD9cxua-Gbq0o5_vrbuHQNBw",
+            authDomain: "moneygame-c9e55.firebaseapp.com",
+            databaseURL: "https://moneygame-c9e55-default-rtdb.firebaseio.com",
+            projectId: "moneygame-c9e55",
+            storageBucket: "moneygame-c9e55.appspot.com",
+            messagingSenderId: "589617824375",
+            appId: "1:589617824375:web:44b8b8b944b5a577753c72",
+            measurementId: "G-HL08MW00PB"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const transferNumberInput = document.getElementById('transferNumber');
+            const errorMessage = document.getElementById('error-message');
+
+            transferNumberInput.addEventListener('input', function() {
+                const transferNumber = this.value;
+
+                // تحقق من طول الرقم
+                if (transferNumber.length !== 11) {
+                    errorMessage.innerText = "رقم التحويل غير صالح. يجب أن يتكون من 11 رقمًا.";
+                    transferNumberInput.style.color = "red"; // تغيير لون الخط إلى أحمر
+                } else {
+                    errorMessage.innerText = ""; // امسح رسالة الخطأ إذا كان الرقم صالحًا
+                    transferNumberInput.style.color = ""; // إعادة لون الخط إلى الافتراضي
+                }
+            });
+
+            document.getElementById('registrationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const whatsapp = document.getElementById('whatsapp').value;
+                const transferNumberInput = document.getElementById('transferNumber');
+            const transferError = document.getElementById('transferError');
+            const transferNumber = transferNumberInput.value;
+
+            // تحقق من طول الرقم
+            if (transferNumber.length !== 11) {
+                transferError.innerText = "رقم التحويل غير صالح. يجب أن يتكون من 11 رقمًا.";
+                transferNumberInput.style.color = "red"; // تغيير لون الخط إلى أحمر
+                return false; // منع إرسال النموذج
+            } else {
+                transferError.innerText = ""; // امسح رسالة الخطأ إذا كان الرقم صالحًا
+                transferNumberInput.style.color = ""; // إعادة لون الخط إلى الافتراضي
+            }
+        
+                // التحقق من صحة البيانات
+                if (name === "" || email === "" || whatsapp === "" || transferNumber === "") {
+                    errorMessage.innerText = "الرجاء ملء جميع الحقول.";
+                    return;
+                } else if (!validateEmail(email)) {
+                    errorMessage.innerText = "البريد الإلكتروني غير صالح.";
+                    return;
+                } else if (!validateWhatsApp(whatsapp)) {
+                    errorMessage.innerText = "رقم الواتساب غير صالح. يجب أن يتكون من 11 رقمًا.";
+                    return;
+                } else if (transferNumber.length !== 11) {
+                    errorMessage.innerText = "رقم التحويل غير صالح. يجب أن يتكون من 11 رقمًا.";
+                    return;
+                }
+
+                // تخزين البيانات في قاعدة البيانات
+                set(ref(database, 'registrants/' + email.replace('.', ',')), {
+                    name: name,
+                    email: email,
+                    whatsapp: whatsapp,
+                    transferNumber: transferNumber 
+                }).then(() => {
+                    window.location.href = 'waiting.html';
+                    setTimeout(() => {
+                        window.location.href = 'registrants.html';
+                    }, 3000);
+                }).catch((error) => {
+                    console.error("Error storing data: ", error);
+                    errorMessage.innerText = "حدث خطأ أثناء تخزين البيانات.";
+                });
+            });
+
+            // دالة للتحقق من صحة البريد الإلكتروني
+            function validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(String(email).toLowerCase());
+            }
+
+            // دالة للتحقق من صحة رقم الواتساب
+            function validateWhatsApp(whatsapp) {
+                const re = /^\d{11}$/; 
+                return re.test(whatsapp);
+            }
+        });
+    </script>
+    <style>
+        body {
+            background: url('https://i.imgur.com/2NdLVq3.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            font-family: 'Oswald', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar { 
+            background-color: rgba(0, 0, 0, 0.7); 
+            justify-content: space-between; /* يفصل الشريط العلوي بين الشعار و القائمة */
+        }
+
+        .navbar-nav a {
+            color: #fff !important;
+            font-weight: bold;
+            padding: 10px 15px;
+        }
+
+        .navbar-nav a:hover {
+            background-color: #7f00ff;
+            color: white !important;
+        }
+
+        .navbar-nav .active {
+            background-color: #9b3fff;
+            color: white !important;
+        }
+
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 50px auto;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .options-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            margin-top: auto;
+        }
+
+        .btn-custom {
+            background-color: #7f00ff;
+            color: white;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            transform: scale(1.05);
+            background-color: #9b3fff;
+        }
+
+        .error {
+            color: red;
+            font-size: 0.85em;
+        }
+
+        /* لوجو واسم الموقع بجانب بعض */
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* يضع اللوجو واسم الموقع على اليمين */
+        }
+
+        .navbar-logo img {
+            width: 50px; /* تعديل حجم اللوجو حسب حاجتك */
+            margin-right: 10px;
+        }
+
+        .navbar-logo h1 {
+            color: #fff;
+            margin-left: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* ترتيب الشريط العلوي على اليسار */
+        .navbar-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .navbar-custom .navbar-nav {
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- الشريط العلوي في اليسار مع الشعار واسم الموقع بجانب بعض -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">الصفحة الرئيسية</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">المسابقات</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">التسجيل</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">الشروط والأحكام</a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- اللوجو واسم الموقع على اليمين -->
+        <div class="navbar-logo">
+            <!-- اسم الموقع -->
+            <h1>Money Game</h1>
+            <!-- الشعار -->
+            <img src="https://i.imgur.com/eQlgeSy.png" alt="Logo"> <!-- هنا ضع رابط اللوجو -->
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 class="text-center mb-4">ادخل البيانات</h2>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="name">اسم المستخدم في اللعبة:</label>
+                <input type="text" class="form-control" id="name" placeholder="الاسم" required>
+            </div>
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني:</label>
+                <input type="email" class="form-control" id="email" placeholder="ادخل البريد الإلكتروني" required>
+                <span class="error" id="emailError"></span>
+            </div>
+            <div class="form-group">
+                <label for="gameID">ID الخاص بك داخل اللعبة:</label>
+                <input type="text" class="form-control" id="gameID" placeholder="ادخل ID اللعبة" required>
+            </div>
+            <div class="form-group">
+                <label for="whatsapp">رقم الواتساب:</label>
+                <input type="tel" class="form-control" id="whatsapp" placeholder="ادخل رقم الواتساب" required>
+                <span class="error" id="whatsappError"></span>
+            </div>
+            <div class="form-group">
+                <label for="region">المنطقة:</label>
+                <input type="text" class="form-control" id="region" placeholder="ادخل المنطقة" required>
+            </div>
+            <div class="form-group">
+                <label for="code">الكود:</label>
+                <input type="text" class="form-control" id="code" placeholder="ادخل الكود" required>
+            </div>
+
+<div class="options-box">
+    <h5 style="color: black; font-weight: bold;">معرف اللعبة</h5>
+    <div class="button-group">
+        <button class="button" id="soloButton" onclick="selectMode('solo')" style="width: 150px;">سولو ( فردي )</button>
+        <div style="text-align: center;">
+            <button class="button" id="duoButton" onclick="selectMode('duo')" style="background-color: black; color: white; width: 150px;" disabled>دو ( لاعبين ) &#x1F6AB;</button>
+            <p style="color: red; font-size: 16px; margin: 5px 0;">قريبًا</p>
+        </div>
+        <div style="text-align: center;">
+            <button class="button" id="squadButton" onclick="selectMode('squad')" style="background-color: black; color: white; width: 150px;" disabled>فريق ( 4 ) &#x1F6AB;</button>
+            <p style="color: red; font-size: 16px; margin: 5px 0;">قريبًا</p>
+        </div>
+    </div>
+
+    <div id="individualFields" class="form-group" style="display: block;">
+        <label style="color: black; font-weight: bold;">سولو ( فردي )</label>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب" required>
+            <input type="text" class="form-control" placeholder="ID اللاعب" required>
+        </div>
+    </div>
+
+    <div id="duoFields" class="form-group" style="display: block;">
+        <label style="color: black; font-weight: bold;">دو ( لاعبين )</label>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب 1" required disabled>
+            <input type="text" class="form-control" placeholder="ID اللاعب 1" required disabled>
+        </div>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب 2" required disabled>
+            <input type="text" class="form-control" placeholder="ID اللاعب 2" required disabled>
+        </div>
+    </div>
+
+    <div id="teamFields" class="form-group" style="display: block;">
+        <label style="color: black; font-weight: bold;">فريق ( 4 )</label>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب 1" required disabled>
+            <input type="text" class="form-control" placeholder="ID اللاعب 1" required disabled>
+        </div>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب 2" required disabled>
+            <input type="text" class="form-control" placeholder="ID اللاعب 2" required disabled>
+        </div>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب 3" required disabled>
+            <input type="text" class="form-control" placeholder="ID اللاعب 3" required disabled>
+        </div>
+        <div class="pair">
+            <input type="text" class="form-control" placeholder="اسم اللاعب 4" required disabled>
+            <input type="text" class="form-control" placeholder="ID اللاعب 4" required disabled>
+        </div>
+    </div>
+</div>
+
+<style>
+    .options-box {
+        background-color: #f9f9f9; /* لون خلفية صندوق الخيارات */
+        padding: 20px; /* مساحة داخلية */
+        border-radius: 10px; /* زوايا دائرية */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* ظل خفيف */
+        margin-top: 20px; /* هامش علوي */
+    }
+
+    .button-group {
+        display: flex; /* توزيع العناصر بشكل أفقي */
+        justify-content: space-between; /* توزيع الفضاء بين الأزرار */
+        margin-bottom: 20px; /* هامش سفلي */
+    }
+
+    .button {
+        background-color: #6f42c1; /* لون زر موف */
+        color: white; /* لون نص الزر */
+        border: none; /* بدون حدود */
+        padding: 10px 15px; /* مساحة داخلية */
+        border-radius: 5px; /* زوايا دائرية */
+        cursor: pointer; /* تغيير المؤشر عند المرور على الزر */
+        transition: background-color 0.3s, transform 0.3s; /* تأثير تغيير لون الزر وتكبير الزر */
+        font-weight: bold; /* جعل نص الزر بخط عريض */
+    }
+
+    .button:hover {
+        background-color: #5a32a1; /* لون الزر عند المرور عليه */
+        transform: translateY(-2px); /* تأثير رفع الزر عند المرور */
+    }
+
+    .form-group {
+        margin-bottom: 15px; /* هامش سفلي لكل مجموعة حقول */
+    }
+
+    .pair {
+        display: flex; /* توزيع الحقول بشكل أفقي */
+        gap: 10px; /* مسافة بين الحقول */
+    }
+
+    .form-control {
+        flex: 1; /* عرض الحقول ليملأ الفراغ */
+        padding: 10px; /* مساحة داخلية */
+        border: 1px solid #ccc; /* حد رمادي */
+        border-radius: 5px; /* زوايا دائرية */
+        font-weight: bold; /* جعل نص الحقول بخط عريض */
+    }
+
+    .form-control:disabled {
+        background-color: #e9ecef; /* لون خلفية الحقول المعطلة */
+        opacity: 0.6; /* تقليل الشفافية لجعلها تبدو مظللة */
+    }
+</style>
+
+<script>
+    // دالة لتحديد الوضع المحدد
+    function selectMode(mode) {
+        // إخفاء جميع الحقول
+        document.getElementById('individualFields').style.display = 'none';
+        document.getElementById('duoFields').style.display = 'none';
+        document.getElementById('teamFields').style.display = 'none';
+
+        // إظهار الحقول المناسبة بناءً على الوضع المحدد
+        if (mode === 'solo') {
+            document.getElementById('individualFields').style.display = 'block';
+        } else if (mode === 'duo') {
+            document.getElementById('duoFields').style.display = 'block';
+        } else if (mode === 'squad') {
+            document.getElementById('teamFields').style.display = 'block';
+        }
+    }
+
+    // تشغيل أول خانتين تلقائيًا عند تحميل الصفحة
+    window.onload = function() {
+        selectMode('solo');
+    };
+</script>
+
+<script>
+    function selectMode(mode) {
+        const soloFields = document.querySelectorAll('#individualFields .form-control');
+        const duoFields = document.querySelectorAll('#duoFields .form-control');
+        const teamFields = document.querySelectorAll('#teamFields .form-control');
+
+        // تمكين وتعطيل الحقول المناسبة
+        soloFields.forEach(field => field.disabled = mode !== 'solo');
+        duoFields.forEach(field => field.disabled = mode !== 'duo');
+        teamFields.forEach(field => field.disabled = mode !== 'squad');
+
+        // إزالة تمييز الأزرار
+        document.querySelectorAll('.button').forEach(button => {
+            button.classList.remove('active');
+        });
+
+        // تمييز الزر النشط
+        if (mode === 'solo') {
+            document.getElementById('soloButton').classList.add('active');
+        } else if (mode === 'duo') {
+            document.getElementById('duoButton').classList.add('active');
+        } else if (mode === 'squad') {
+            document.getElementById('squadButton').classList.add('active');
+        }
+    }
+</script>
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختيار فئة الاشتراك</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .details {
+            display: none;
+            border: 2px solid red; /* لون إطار المربع */
+            padding: 10px;
+            background-color: rgba(255, 0, 0, 0.3); /* لون خلفية أحمر شفاف */
+            white-space: nowrap; /* تجنب كسر الأسطر */
+            overflow: hidden; /* إخفاء أي محتوى يتجاوز العرض */
+        }
+
+        .details span {
+            color: black; /* لون الخط داخل المربع */
+            font-weight: bold; /* جعل الخط عريضاً */
+            font-size: 14px; /* زيادة حجم الخط قليلاً */
+        }
+    </style>
+</head>
+<body>
+    <div class="options-box">
+        <h5 style="color: black; font-weight: bold;">اختار فئة الاشتراك</h5>
+        <div>
+            <input type="radio" id="sub50" name="subscription" value="50" required>
+            <label for="sub50" style="color: black; font-weight: bold;">اشتراك (50 جنية لاعب واحد فقط) - فردي يربح 1500 جنية 🥉</label>
+            <div class="details" id="details50">
+                <span>رسوم الاشتراك لفردي: 50 جنية - رسوم اشتراك دو: 100 جنية - رسوم اشتراك فريق: 200 جنية</span>
+            </div>
+        </div>
+        <div>
+            <input type="radio" id="sub100" name="subscription" value="100">
+            <label for="sub100" style="color: black; font-weight: bold;">اشتراك (100 جنية لاعب واحد فقط) - فردي يربح 3000 جنية 🥈</label>
+            <div class="details" id="details100">
+                <span>رسوم الاشتراك لفردي: 100 جنية - رسوم اشتراك دو: 200 جنية - رسوم اشتراك فريق: 400 جنية</span>
+            </div>
+        </div>
+        <div>
+            <input type="radio" id="sub150" name="subscription" value="150">
+            <label for="sub150" style="color: black; font-weight: bold;">اشتراك (150 جنية لاعب واحد فقط) - فردي يربح 4500 جنية 🥇</label>
+            <div class="details" id="details150">
+                <span>رسوم الاشتراك لفردي: 150 جنية - رسوم اشتراك دو: 300 جنية - رسوم اشتراك فريق: 600 جنية</span>
+            </div>
+        </div>
+        <div>
+            <input type="radio" id="sub200" name="subscription" value="200">
+            <label for="sub200" style="color: black; font-weight: bold;">اشتراك (200 جنية لاعب واحد فقط) - فردي يربح 6000 جنية 👑</label>
+            <div class="details" id="details200">
+                <span>رسوم الاشتراك لفردي: 200 جنية - رسوم اشتراك دو: 400 جنية - رسوم اشتراك فريق: 800 جنية</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // عند تغيير الاختيار
+            $('input[name="subscription"]').change(function () {
+                // إخفاء جميع الشروحات أولاً
+                $('.details').hide();
+
+                // إظهار الشرح الخاص بالاختيار الحالي
+                let subscriptionValue = $(this).val();
+                $('#details' + subscriptionValue).show();
+            });
+        });
+    </script>
+
+
+<div class="options-box" style="background-color: rgba(255, 255, 255, 0.8); padding: 20px; border-radius: 10px; margin-top: 20px;">
+    <h5 style="color: black; font-weight: bold;">طريقة الدفع:</h5>
+    <div style="display: flex; align-items: center; justify-content: flex-start; margin-bottom: 10px;">
+        <input type="radio" id="vodafoneCash" name="paymentMethod" value="vodafoneCash" required>
+        <label for="vodafoneCash" style="color: black; margin-left: 5px; font-weight: bold;">فودافون كاش - ارسل المبلغ الي 01012853829</label>
+        <img src="https://iconape.com/wp-content/files/ef/372324/svg/372324.png" alt="Vodafone Cash" style="width: 30px; height: 30px; margin-left: 10px;">
+    </div>
+    <div class="form-group">
+                <label for="transferNumber" style="color: black; font-weight: bold;">اكتب الرقم الذي حولت منه المبلغ:</label>
+                <input type="text" class="form-control" id="transferNumber" required>
+                <div class="error" id="transferError"></div>
+            </div>
+</div>
+
+
+<script>
+    function toggleImageUpload(show) {
+        const vodafoneCashDetails = document.getElementById('vodafoneCashDetails');
+        vodafoneCashDetails.style.display = show ? 'block' : 'none';
+    }
+
+    function validateForm() {
+            const transferNumberInput = document.getElementById('transferNumber');
+            const transferError = document.getElementById('transferError');
+            const transferNumber = transferNumberInput.value;
+
+            // تحقق من طول الرقم
+            if (transferNumber.length !== 11) {
+                transferError.innerText = "رقم التحويل غير صالح. يجب أن يتكون من 11 رقمًا.";
+                transferNumberInput.style.color = "red"; // تغيير لون الخط إلى أحمر
+                return false; // منع إرسال النموذج
+            } else {
+                transferError.innerText = ""; // امسح رسالة الخطأ إذا كان الرقم صالحًا
+                transferNumberInput.style.color = ""; // إعادة لون الخط إلى الافتراضي
+            }
+
+        // إذا كان كل شيء صحيح، يمكنك متابعة إرسال النموذج
+        alert('تم إرسال النموذج بنجاح!');
+        // هنا يمكنك إضافة كود إرسال النموذج
+    }
+</script>
+            <div class="form-group">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">تذكرني</label>
+            </div>
+  
+            <button type="submit" class="btn btn-custom btn-block">تسجيل <i class="fas fa-paper-plane"></i></button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Money Game. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+$(document).ready(function() {
+    $('#registrationForm').on('submit', function(event) {
+        event.preventDefault();
+        let isValid = true;
+        $('.error').text('');
+
+                // فحص صحة البيانات
+                const whatsappPattern = /^\d{11}$/; // يجب أن يتكون من 11 رقمًا
+                const emailValue = $('#email').val();
+                const whatsappValue = $('#whatsapp').val();
+                const transferNumberValue = $('#transferNumber').val();
+                const transferNumberPattern = /^\d{11}$/; // تحقق من أن رقم التحويل يتكون من 11 رقمًا
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                // تحقق من رقم الواتساب
+                if (!whatsappPattern.test(whatsappValue)) {
+                    $('#whatsappError').text('رقم الواتساب غير صالح. يجب أن يتكون من 11 رقمًا.');
+                    isValid = false;
+                }
+                // تحقق من البريد الإلكتروني
+                if (!emailPattern.test(emailValue)) {
+                    $('#emailError').text('البريد الإلكتروني غير صالح.');
+                    isValid = false;
+                }
+                // تحقق من رقم التحويل
+                if (!transferNumberPattern.test(transferNumberValue)) {
+                    $('#transferNumberError').text('رقم التحويل غير صالح. يجب أن يتكون من 11 رقمًا.');
+                    isValid = false;
+                }
+
+        if (isValid) {
+            // الحصول على القيم من الحقول
+            const name = $('#name').val();
+            const gameID = $('#gameID').val();
+            const region = $('#region').val();
+            const code = $('#code').val();
+            const transferNumber = $('#transferNumber').val();
+            const subscriptionCategory = $("input[name='subscription']:checked").val();
+            const paymentMethod = $("input[name='paymentMethod']:checked").val();
+            let players = []; 
+
+            // تحديد الوضع وإضافة اللاعبين
+            const mode = document.querySelector('.button.active').id; // الحصول على الوضع النشط
+            if (mode === 'soloButton') {
+                players.push({
+                    name: $('#individualFields input[placeholder="اسم اللاعب"]').val(),
+                    id: $('#individualFields input[placeholder="ID اللاعب"]').val()
+                });
+            } else if (mode === 'duoButton') {
+                players.push(
+                    { name: $('#duoFields input[placeholder="اسم اللاعب 1"]').val(), id: $('#duoFields input[placeholder="ID اللاعب 1"]').val() },
+                    { name: $('#duoFields input[placeholder="اسم اللاعب 2"]').val(), id: $('#duoFields input[placeholder="ID اللاعب 2"]').val() }
+                );
+            } else if (mode === 'squadButton') {
+                players.push(
+                    { name: $('#teamFields input[placeholder="اسم اللاعب 1"]').val(), id: $('#teamFields input[placeholder="ID اللاعب 1"]').val() },
+                    { name: $('#teamFields input[placeholder="اسم اللاعب 2"]').val(), id: $('#teamFields input[placeholder="ID اللاعب 2"]').val() },
+                    { name: $('#teamFields input[placeholder="اسم اللاعب 3"]').val(), id: $('#teamFields input[placeholder="ID اللاعب 3"]').val() },
+                    { name: $('#teamFields input[placeholder="اسم اللاعب 4"]').val(), id: $('#teamFields input[placeholder="ID اللاعب 4"]').val() }
+                );
+            }
+
+            // إعداد البيانات للإرسال
+            const dataToSend = {
+                name,
+                email: emailValue,
+                whatsapp: whatsappValue,
+                gameID,
+                region,
+                code,
+                transferNumber,
+                subscriptionCategory,
+                paymentMethod,
+                players
+            };
+
+            // إرسال البيانات إلى Google Apps Script
+            $.post('https://script.google.com/macros/s/AKfycbygbuNypLqo5BQ8aRgQ5FriSf7bk3YeB3SrMI5VSuqk4bbP49dWFG8CrIkLYI7Lp0XI7Q/exec', 
+                JSON.stringify(dataToSend), 
+                function(response) {
+                    console.log('تم إرسال البيانات إلى Google Apps Script:', response);
+                }
+            );
+
+            // إرسال البيانات إلى Firebase
+            const db = getDatabase(); // تأكد من أنك قد استوردت Firebase و initialized
+            set(ref(db, 'registrants/' + emailValue.replace('.', ',')), dataToSend)
+                .then(() => {
+                    alert('تم تسجيل المشترك بنجاح! شكراً لتسجيلك!');
+                    $('#registrationForm')[0].reset(); // إعادة تعيين النموذج
+
+                    // توجيه إلى صفحة الانتظار ثم إلى صفحة التسجيلات
+                    window.location.href = 'waiting.html';
+                    setTimeout(() => {
+                        window.location.href = 'registrants.html';
+                    }, 3000);
+                })
+                .catch((error) => {
+                    console.error("Error storing data: ", error);
+                    alert('حدث خطأ أثناء تخزين البيانات.');
+                });
+        } else {
+            alert("يرجى تصحيح الأخطاء الموضحة في النموذج.");
+        }
+    });
+});
+
+    </script>
+</body>
+</html>
